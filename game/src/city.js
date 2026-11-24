@@ -1,4 +1,4 @@
-// city.js — procedural open-world: roads, blocks, buildings, beach, harbor, palms.
+// Solmar Bay world builder: roads, districts, beach, harbor, and palms.
 import * as R from './rng.js';
 
 /** World: builds all city geometry once at boot into ctx.scene. */
@@ -65,9 +65,10 @@ export class World {
   build() {
     this.makeGroundAndWater();
     this.makeRoadGrid();
-    this.makeBlocks();
-    this.makeProps();
-    this.makeLandmarks();
+    this._makeBlocks();
+    this._makeWater();
+    this._makePalms();
+    return this;
   }
 
   /** Big sand/asphalt base plane + west/south water + beach palms. */
@@ -316,15 +317,4 @@ export class World {
     }
   }
 
-  /** Public entry point: build the entire world once. */
-  build() {
-    this._makeGround();
-    this._makeRoads();
-    this._makeBlocks();
-    this._makeWater();
-    this._makePalms();
-    this._makeFerris();
-    return this;
-  }
 }
-// city-CHUNK-4-COMPLETE

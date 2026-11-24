@@ -1,0 +1,87 @@
+<!doctype html>
+<!-- Solmar Bay game page and browser entry point. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171918">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23e8a13c'/%3E%3C/svg%3E">
+  <title>SOLMAR BAY</title>
+  <style>
+    :root{color-scheme:dark;--ink:#f8f2e5;--muted:#c5c1b7;--sun:#ff9b57;--glass:rgba(15,21,22,.76)}
+    *{box-sizing:border-box}
+    html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#192526;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+    button{font:inherit;color:inherit}
+    #game3d{position:fixed;inset:0;width:100%;height:100%;display:block}
+    #start{position:fixed;inset:0;z-index:5;display:grid;place-items:center;padding:24px;background:linear-gradient(115deg,rgba(12,17,18,.92),rgba(14,23,24,.56) 58%,rgba(109,57,38,.27)),linear-gradient(0deg,rgba(10,15,16,.58),transparent 65%);}
+    .start-card{width:min(690px,100%);padding:clamp(28px,6vw,64px);border:1px solid rgba(255,255,255,.16);border-radius:5px;background:linear-gradient(145deg,rgba(21,28,28,.84),rgba(16,22,23,.66));box-shadow:0 30px 100px #0008;backdrop-filter:blur(12px)}
+    .eyebrow{margin:0 0 14px;color:var(--sun);font-size:11px;font-weight:700;letter-spacing:.32em;text-transform:uppercase}
+    h1{margin:0;color:#fff4df;font-size:clamp(42px,9vw,82px);line-height:.92;letter-spacing:.16em;text-shadow:0 3px 24px #ff985555}
+    .subtitle{margin:18px 0 30px;color:#e6d9c5;font-size:clamp(15px,2vw,19px);letter-spacing:.045em}
+    .rule{height:1px;margin:25px 0;background:linear-gradient(90deg,var(--sun),transparent)}
+    .controls{display:grid;grid-template-columns:1fr 1fr;gap:11px 20px;margin:0 0 30px;padding:0;list-style:none;color:var(--muted);font-size:13px}
+    .controls li{display:flex;align-items:center;gap:10px}
+    kbd{min-width:42px;padding:5px 7px;border:1px solid #ffffff30;border-radius:3px;background:#ffffff0b;color:#fff;text-align:center;font:700 10px Arial,sans-serif;letter-spacing:.08em}
+    .actions{display:flex;flex-wrap:wrap;gap:12px}
+    .actions button{min-width:160px;padding:14px 20px;border:1px solid var(--sun);border-radius:3px;background:linear-gradient(115deg,#f58b4c,#d96743);box-shadow:0 8px 26px #e2744233;color:#171716;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:transform .16s,filter .16s}
+    .actions button:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.12)}
+    .actions button:disabled{border-color:#ffffff24;background:#ffffff0a;box-shadow:none;color:#777;cursor:not-allowed}
+    #startMsg{min-height:18px;margin:16px 0 0;color:#ffd2ae;font-size:12px}
+    .hud{position:fixed;inset:0;z-index:2;pointer-events:none;color:#fff;text-shadow:0 2px 5px #000;}
+    .minimap{position:absolute;left:24px;bottom:24px;width:174px;height:174px;border:2px solid #fff9;border-radius:50%;background:var(--glass);box-shadow:0 8px 28px #0008;overflow:hidden}
+    .minimap canvas{width:100%;height:100%}
+    .stars{position:absolute;top:24px;right:28px;color:#ffd27a;font-size:25px;letter-spacing:5px}
+    .money{position:absolute;top:58px;right:30px;color:#a9e2a9;font-size:22px;font-weight:700}
+    .objective{position:absolute;top:24px;left:50%;max-width:min(560px,70vw);padding:12px 18px;transform:translateX(-50%);border-left:3px solid var(--sun);background:var(--glass);font-size:14px}
+    .dialog{position:absolute;left:50%;bottom:10%;width:min(520px,80vw);padding:15px 20px;transform:translateX(-50%);border:1px solid #fff3;background:var(--glass);font-size:15px;text-align:center}
+    .speedo{position:absolute;right:28px;bottom:25px;padding:12px 16px;background:var(--glass);font-size:24px;font-weight:700}
+    .toast{position:absolute;top:18%;left:50%;padding:10px 18px;transform:translateX(-50%);border:1px solid #fff3;background:var(--glass);font-size:13px}
+    .district{position:absolute;left:24px;bottom:210px;color:#ffdab5;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+    .crosshair{position:fixed;z-index:3;top:50%;left:50%;width:18px;height:18px;transform:translate(-50%,-50%);pointer-events:none}
+    .crosshair:before,.crosshair:after{position:absolute;content:"";background:#fff;box-shadow:0 0 4px #000}
+    .crosshair:before{top:8px;left:2px;width:14px;height:2px}
+    .crosshair:after{top:2px;left:8px;width:2px;height:14px}
+    .overlay{position:fixed;inset:0;z-index:4;display:grid;place-items:center;background:#080d0dcc;backdrop-filter:blur(5px);font-size:clamp(30px,6vw,58px);font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+    [hidden]{display:none!important}
+    @media(max-width:560px){.start-card{padding:28px 22px}.controls{grid-template-columns:1fr}.minimap{width:130px;height:130px;left:14px;bottom:14px}.district{left:14px;bottom:154px}.stars{right:14px;top:14px}.money{right:16px;top:48px}.speedo{right:14px;bottom:14px}.objective{top:85px;max-width:90vw;font-size:12px}}
+  </style>
+</head>
+<body>
+  <canvas id="game3d" aria-label="Solmar Bay game world"></canvas>
+  <section id="start" aria-label="Start screen">
+    <div class="start-card">
+      <p class="eyebrow">A sunlit city with a darker side</p>
+      <h1>SOLMAR<br>BAY</h1>
+      <p class="subtitle">An open-world crime story - 7 jobs. One bay.</p>
+      <div class="rule"></div>
+      <ul class="controls" aria-label="Controls">
+        <li><kbd>W A S D</kbd> Move / drive</li>
+        <li><kbd>MOUSE</kbd> Look / aim</li>
+        <li><kbd>SPACE</kbd> Jump / handbrake</li>
+        <li><kbd>E</kbd> Enter or exit vehicle</li>
+        <li><kbd>CLICK</kbd> Fire weapon</li>
+        <li><kbd>ESC</kbd> Release mouse</li>
+      </ul>
+      <div class="actions">
+        <button id="btnNew" type="button">New Game</button>
+        <button id="btnContinue" type="button" disabled>Continue</button>
+      </div>
+      <p id="startMsg" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+  <div id="hud" class="hud" hidden>
+    <div class="minimap"><canvas id="minimap" width="256" height="256" aria-label="Minimap"></canvas></div>
+    <div class="stars" aria-label="Wanted level">☆☆☆☆☆</div>
+    <div class="money">$0</div>
+    <div class="objective">Explore Solmar Bay</div>
+    <div class="dialog" hidden></div>
+    <div class="speedo" hidden>0 km/h</div>
+    <div class="toast" hidden></div>
+    <div class="district">Solmar Bay</div>
+  </div>
+  <div id="crosshair" class="crosshair" hidden></div>
+  <div id="overlay" class="overlay" hidden></div>
+  <script src="vendor/three.min.js"></script>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-// config.js - every gameplay tunable for Solmar Bay in one frozen object: palette, districts, cars, weapons, missions.
+// Solmar Bay gameplay settings: palette, districts, vehicles, weapons, and missions.
 
 /**
  * CONFIG - the single frozen object of all gameplay tunables. Nothing else may
@@ -74,5 +74,3 @@ export const CONFIG = Object.freeze({
     Object.freeze({ id: 4, title: 'Block Party', giver: 'Tito Ferrer', brief: 'Hold off the rival crew Los Chacales who are muscling in on Sol Heights.', type: 'wave', reward: 1500, district: 'Sol Heights' }),
   ]),
 });
-
-// config-CHUNK-2-PLACEHOLDER

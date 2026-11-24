@@ -1,16 +1,22 @@
-// rng.js - seeded PRNG (mulberry32) plus pure math helpers for Solmar Bay.
+// Solmar Bay seeded random number generator and math helpers.
 const CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
 /** Deterministic PRNG factory; returns rng() yielding floats in [0,1). */
 export function mulberry32(seed) {
   let a = seed >>> 0;
-  return function rng() {
+  const rng = function rng() {
     a |= 0;
     a = (a + 0x6D2B79F5) | 0;
     let t = Math.imul(a ^ (a >>> 15), 1 | a);
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+  rng.float = (a = 0, b = 1) => R.range(rng, a, b);
+  rng.range = (a, b) => R.range(rng, a, b);
+  rng.pick = (arr) => R.pick(rng, arr);
+  rng.int = (a, b) => R.int(rng, a, b);
+  rng.chance = (p) => R.chance(rng, p);
+  return rng;
 }
 
 /** Pure, stateless random/angle helpers built on an injected rng(). */
