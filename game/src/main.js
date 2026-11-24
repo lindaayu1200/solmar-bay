@@ -131,8 +131,10 @@ function init() {
   } else if (['play', 'chase', 'end'].includes(shot)) {
     try {
       state.mode = 'play'; ctx.input.setCapture(false); ctx.hud.showStart(true);
-      ctx.player.pos.set(0, 0, 20);
-       if (ctx.vehicles.spawnTraffic) ctx.vehicles.spawnTraffic(new T.Vector3(0, 0, 20));
+      ctx.player.pos.set(20, 0, 20);
+       if (ctx.vehicles.spawnTraffic) ctx.vehicles.spawnTraffic(new T.Vector3(20, 0, 20));
+       ctx.vehicles.spawnParked('sedan', new T.Vector3(28, 0, 8), 0);
+       ctx.vehicles.spawnParked('taxi', new T.Vector3(12, 0, 34), Math.PI);
       if (shot === 'chase' || shot === 'end') {
         state.wanted = shot === 'end' ? 2 : 3;
         ctx.police.heat = shot === 'end' ? 3 : 5;

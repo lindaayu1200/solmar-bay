@@ -61,6 +61,26 @@ export class World {
     });
   }
 
+  /** Procedural stucco facade with repeating windows for buildings. */
+  _facadeTexture() {
+    return this._texture('facade', 128, 128, (g, w, h) => {
+      g.fillStyle = this.rng.pick(['#d8cfc2', '#c9bfae', '#e0d6c6', '#b9ad98', '#cbbfae']);
+      g.fillRect(0, 0, w, h);
+      const windowWidth = 30;
+      const windowHeight = 22;
+      const gapX = 14;
+      const gapY = 12;
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 2; col++) {
+          g.fillStyle = this.rng.float() < 0.12 ? '#ffd98c' : '#3a4652';
+          g.fillRect(18 + col * (windowWidth + gapX), 10 + row * (windowHeight + gapY), windowWidth, windowHeight);
+        }
+      }
+      g.fillStyle = '#a99d89';
+      g.fillRect(0, h - 12, w, 12);
+    });
+  }
+
   /** Main build entry; called once from main boot. */
   build() {
     this.makeGroundAndWater();
@@ -215,13 +235,23 @@ export class World {
   _manualMerge(parts) {
     const { T } = this;
     const pos = [];
+    const norm = [];
     const uv = [];
     const idx = [];
+    let hasNormals = true;
     let base = 0;
     for (const p of parts) {
       const pp = p.attributes.position;
       for (let i = 0; i < pp.count; i++) {
         pos.push(pp.getX(i), pp.getY(i), pp.getZ(i));
+      }
+      const normal = p.attributes.normal;
+      if (normal) {
+        for (let i = 0; i < normal.count; i++) {
+          norm.push(normal.getX(i), normal.getY(i), normal.getZ(i));
+        }
+      } else {
+        hasNormals = false;
       }
       const uvA = p.attributes.uv;
       for (let i = 0; i < uvA.count; i++) {
@@ -235,8 +265,10 @@ export class World {
     }
     const g = new T.BufferGeometry();
     g.setAttribute('position', new T.Float32BufferAttribute(pos, 3));
+    if (hasNormals) g.setAttribute('normal', new T.Float32BufferAttribute(norm, 3));
     g.setAttribute('uv', new T.Float32BufferAttribute(uv, 2));
     g.setIndex(idx);
+    if (!hasNormals) g.computeVertexNormals();
     return g;
   }
 
@@ -248,19 +280,28 @@ export class World {
     const step = this.config.cityStep;
     const rng = this.rng;
     const palette = ['#d8cfc2', '#c9bfae', '#e0d6c6', '#b9ad98', '#cbbfae'];
+    const facade = this._facadeTexture();
+    facade.wrapS = facade.wrapT = T.RepeatWrapping;
+    facade.repeat.set(1, 1);
 
     for (let x = -half; x < half; x += step) {
       for (let z = -half; z < half; z += step) {
         // Leave a void along the beach boulevard strip.
         if (Math.abs(z - (x * 0.6 + 120)) < 30) continue;
-        if (rng.float() < 0.35) continue; // keep some open lots
-        const w = rng.float(8, 18);
-        const d = rng.float(8, 18);
-        const h = rng.float(6, 40);
+        if (rng.float() < 0.15) continue; // keep some open lots
+        const w = rng.float(14, 28);
+        const d = rng.float(14, 28);
+        const cellCenterDistance = Math.hypot(x + step / 2, z + step / 2);
+        const h = cellCenterDistance < 180 ? rng.float(35, 85) : rng.float(8, 30);
         const geo = new T.BoxGeometry(w, h, d);
-        geo.translate(x + rng.float(-4, 4), h / 2, z + rng.float(-4, 4));
+        const jitterX = rng.float(-4, 4);
+        const jitterZ = rng.float(-4, 4);
+        const cx = x + jitterX;
+        const cz = z + jitterZ;
+        geo.translate(cx, h / 2, cz);
         const mat = new T.MeshStandardMaterial({
-          color: rng.pick(palette),
+          map: facade,
+          color: 0xffffff,
           roughness: 0.9,
           metalness: 0.05,
         });
@@ -269,8 +310,8 @@ export class World {
         mesh.receiveShadow = true;
         this.ctx.scene.add(mesh);
         this.colliders.push({
-          min: [mesh.position.x - w / 2, 0, mesh.position.z - d / 2],
-          max: [mesh.position.x + w / 2, h, mesh.position.z + d / 2],
+          min: [cx - w / 2, 0, cz - d / 2],
+          max: [cx + w / 2, h, cz + d / 2],
         });
         parts.push(geo);
       }

@@ -106,7 +106,7 @@ export class Hud {
     this.nodes['hud-speed'].style.display = car ? 'block' : 'none';
     this.nodes['hud-speed'].innerHTML = car ? `${speed} <small>KM/H</small><br><small>${car.name || car.type || 'VEHICLE'}</small>` : '';
     const mission = s.mission || this.ctx.missions?.current;
-    this.nodes['hud-mission'].innerHTML = mission ? `<b>${mission.giver || mission.name || 'MISSION'}</b><br>${mission.objective || mission.text || ''}${mission.timeLeft != null ? `<br>${Math.ceil(mission.timeLeft)}s` : ''}` : '';
+    this.nodes['hud-mission'].innerHTML = mission ? `<b>${mission.giver || mission.name || 'MISSION'}</b><br>${mission.objective || mission.brief || mission.text || ''}${mission.timeLeft != null ? `<br>${Math.ceil(mission.timeLeft)}s` : ''}` : '';
     const dialog = this.ctx.missions?.dialog;
     this.nodes['hud-dialog'].style.display = dialog ? 'block' : 'none';
     this.nodes['hud-dialog'].innerHTML = dialog ? `<b>${dialog.speaker || ''}</b><br>${dialog.text || dialog}<br><small>E TO CONTINUE</small>` : '';

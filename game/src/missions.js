@@ -45,9 +45,9 @@ export class Missions {
     const m = this.items.find(x => x.id === id);
     if (!m || this.done.has(id) || this.activeMission) return false;
     this.activeMission = { data: m, stage: 0, elapsed: 0, wave: 0, target: null };
-    this.ctx.state.mission = m.name;
+    this.ctx.state.mission = m;
     if (m.type === 'steal' || m.type === 'chase') this._spawnTarget(m);
-    this._objective(m.objective || m.description || m.name);
+    this._objective(m.objective || m.brief || m.description || m.title);
     return true;
   }
 
@@ -123,7 +123,7 @@ export class Missions {
     if (!this.dialog) {
       const box = document.createElement('div');
       box.style.cssText = 'position:fixed;left:24px;bottom:24px;background:#17130fdd;color:white;padding:14px 18px;font:16px sans-serif;z-index:900;max-width:360px';
-      box.textContent = `${m.giverName || m.contact || 'Solmar Bay'}: ${m.dialogue || m.description || m.name}  [E]`;
+      box.textContent = `${m.giverName || m.contact || m.giver || 'Solmar Bay'}: ${m.dialogue || m.brief || m.description || m.title}  [E]`;
       document.body.appendChild(box);
       this.dialog = box;
     }
