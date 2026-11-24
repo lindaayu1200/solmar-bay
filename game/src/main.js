@@ -32,6 +32,8 @@ function init() {
   if (!T) throw new Error('THREE vendor script was not loaded');
   const canvas = document.querySelector('canvas') || document.body.appendChild(document.createElement('canvas'));
   const renderer = new T.WebGLRenderer({ canvas, antialias: true });
+  renderer.toneMapping = T.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setSize(innerWidth, innerHeight);
   renderer.shadowMap.enabled = true;
@@ -40,12 +42,12 @@ function init() {
   scene.background = new T.Color(CONFIG.PALETTE.skyTop);
   scene.fog = new T.FogExp2(CONFIG.PALETTE.fog, 0.0018);
   const camera = new T.PerspectiveCamera(65, innerWidth / innerHeight, 0.1, 1600);
-  const sun = new T.DirectionalLight(CONFIG.PALETTE.sun, 2.2);
+  const sun = new T.DirectionalLight(CONFIG.PALETTE.sun, 1.5);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
   sun.shadow.camera.left = sun.shadow.camera.bottom = -120;
   sun.shadow.camera.right = sun.shadow.camera.top = 120;
-  scene.add(sun, new T.HemisphereLight(0xffe2bc, 0x52636a, 1.25));
+  scene.add(sun, new T.HemisphereLight(0xffe2bc, 0x52636a, 0.85));
   const sky = new T.Mesh(new T.SphereGeometry(900, 24, 16), new T.MeshBasicMaterial({
     color: CONFIG.PALETTE.skyTop, side: T.BackSide, depthWrite: false,
   }));
@@ -130,7 +132,7 @@ function init() {
     try {
       state.mode = 'play'; ctx.input.setCapture(false); ctx.hud.showStart(true);
       ctx.player.pos.set(0, 0, 20);
-      if (ctx.vehicles.spawnTraffic) ctx.vehicles.spawnTraffic({ x: 0, z: 20 });
+       if (ctx.vehicles.spawnTraffic) ctx.vehicles.spawnTraffic(new T.Vector3(0, 0, 20));
       if (shot === 'chase' || shot === 'end') {
         state.wanted = shot === 'end' ? 2 : 3;
         ctx.police.heat = shot === 'end' ? 3 : 5;

@@ -96,7 +96,8 @@ export class Hud {
     if (Number(s.money) !== this.moneyTarget) { this.moneyTarget = Number(s.money) || 0; this.moneyChanged = now; }
     this.moneyShown += (this.moneyTarget-this.moneyShown) * Math.min(1, dt*5);
     set('hud-money', '$ ' + Math.round(this.moneyShown).toLocaleString());
-    const weapon = this.ctx.combat?.currentWeapon || this.ctx.combat?.weapon || {};
+    const key = this.ctx.combat?.weapon;
+    const weapon = key && this.ctx.combat?.weapons ? this.ctx.combat.weapons[key] : {};
     const ammo = weapon.ammo ?? weapon.reserve ?? '';
     const status = `HEALTH ${Math.ceil(s.health ?? 100)}  ARMOR ${Math.ceil(s.armor ?? 0)}<br>Weapon: ${weapon.name || 'Unarmed'}  ${ammo}`;
     if (this.last['hud-status'] !== status) { this.nodes['hud-status'].innerHTML = status; this.last['hud-status'] = status; }
